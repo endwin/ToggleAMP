@@ -1,0 +1,117 @@
+{
+  "nav": {
+    "title_sub": "Multi-Stack Local Dev Environment",
+    "web_label": "Web:",
+    "php_label": "PHP:",
+    "db_label": "DB:",
+    "config": "Settings",
+    "start_all": "Start All",
+    "stop_all": "Stop All",
+    "shutdown": "Exit",
+    "sync": "Sync",
+    "www": "www"
+  },
+  "services": {
+    "title": "Active Stack Services",
+    "checking": "Checking services...",
+    "active_count": "{count} / {total} active",
+    "btn_start": "Start",
+    "btn_stop": "Stop",
+    "btn_restart": "Restart",
+    "uptime": "Uptime: {time}",
+    "port": "Port: {port}",
+    "pid": "PID: {pid}"
+  },
+  "vhosts": {
+    "title": "Virtual Hosts (*.test)",
+    "subtitle": "Auto-detected projects with local SSL and DNS",
+    "btn_new_site": "New Site",
+    "th_name": "Site Name",
+    "th_domain": "Domain & Direct Localhost",
+    "th_type": "Type",
+    "th_doc_root": "Document Root",
+    "th_actions": "Actions",
+    "btn_open_folder": "Open Directory in Explorer",
+    "btn_open_browser": "Open in Browser (.test)",
+    "btn_delete": "Permanently Delete Virtual Host & Files",
+    "empty": "No sites found in www/ folder.",
+    "hosts_notice": "If <strong>.test domain</strong> fails to connect, sync Hosts file or access via <strong>localhost/foldername</strong> directly.",
+    "btn_elevate_hosts": "Sync Hosts (Admin Privileges)",
+    "hosts_syncing": "Syncing Hosts...",
+    "hosts_synced": "Hosts Synced"
+  },
+  "tools": {
+    "title": "Quick Tools & Packages",
+    "subtitle": "Fast access to database & version downloads",
+    "pma_latest_title": "phpMyAdmin (Latest)",
+    "pma_latest_badge": "PHP 7.x~8.x",
+    "pma_31_title": "phpMyAdmin 3.1",
+    "pma_31_badge": "PHP 5.2 Legacy",
+    "mailpit_title": "Mailpit Webmail",
+    "mailpit_desc": "Catch local outgoing emails (Port 8025)",
+    "packages_title": "Runtime Packages",
+    "packages_subtitle": "1-Click Install"
+  },
+  "packages": {
+    "btn_install": "Install",
+    "btn_installing": "Installing...",
+    "btn_apply": "Apply",
+    "btn_delete": "Delete",
+    "badge_active": "Active",
+    "installed": "Installed",
+    "active_tooltip": "Currently active and in use",
+    "apply_tooltip": "Apply this version",
+    "delete_tooltip": "Delete package",
+    "install_tooltip": "Download & install"
+  },
+  "logs": {
+    "title": "Live Activity & Log Stream",
+    "btn_open_folder": "Open Log Folder",
+    "btn_clear": "Clear",
+    "connected": "[system] Connected to ToggleAMP daemon log stream..."
+  },
+  "modal": {
+    "new_site_title": "Create New Local Site",
+    "site_dir_label": "Site Directory Name",
+    "project_type_label": "Template / Project Type",
+    "type_php": "PHP Standard (phpinfo, custom code)",
+    "type_laravel": "Laravel Framework (public/ index)",
+    "type_static": "Static HTML / Frontend",
+    "btn_cancel": "Cancel",
+    "btn_create": "Create Site",
+    "config_title": "Configuration Editor",
+    "config_tab_php": "PHP Configuration",
+    "config_tab_web": "Web Server",
+    "config_tab_db": "Database",
+    "config_tab_system": "General Settings",
+    "btn_save": "Save & Apply",
+    "saving": "Saving...",
+    "delete_vhost_title": "Delete Virtual Host & Project",
+    "delete_vhost_badge": "Permanent Deletion",
+    "delete_vhost_warning": "This action <strong>cannot be undone</strong>.<br>All <strong>source files and code</strong> in this project directory, Nginx/Apache VHost configurations, and SSL certificates will be completely deleted.",
+    "delete_vhost_confirm_btn": "Confirm Permanent Delete",
+    "deleting": "Deleting..."
+  },
+  "alerts": {
+    "locked_while_running": "⚠️ Cannot change runtime while servers are running.\nPlease stop all servers first.",
+    "webserver_switch_failed": "Failed to switch Web Server",
+    "php_switch_failed": "Failed to switch PHP version",
+    "db_switch_failed": "Failed to switch Database engine",
+    "confirm_delete_pkg": "Are you sure you want to delete [ {name} ] package?\n(Installed binary directory will be deleted)",
+    "delete_pkg_failed": "Failed to delete package.",
+    "delete_req_error": "An error occurred while requesting deletion: ",
+    "active_pkg_cannot_delete": "Currently active package cannot be deleted. Please switch to another version first.",
+    "core_pkg_cannot_delete": "PHP 5.2.9 and MySQL 5.1.33 are protected core packages in ToggleAMP and cannot be deleted.",
+    "vhost_deleted": "Virtual host and project directory have been permanently deleted.",
+    "confirm_shutdown": "Are you sure you want to stop all services and exit ToggleAMP?",
+    "shutdown_complete": "ToggleAMP daemon and all services have been safely shut down.\nYou may close this browser tab."
+  },
+  "version": {
+    "mismatch_title": "Version Integrity Mismatch",
+    "mismatch_detected": "Mismatch Detected",
+    "mismatch_desc": "Code version (v{code}) does not match VERSION.txt (v{file})"
+  },
+  "developer": {
+    "title": "Developer Info"
+  }
+}

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToggleAMP — Multi-Stack Local Dev Environment</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                        },
+                        dark: {
+                            bg: '#090d16',
+                            card: '#111827',
+                            border: '#1f2937',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" type="image/png" href="ToggleAMP.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="ToggleAMP.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-dark-bg text-slate-100 min-h-screen flex flex-col antialiased selection:bg-teal-500 selection:text-white">
+
+    <!-- Top Navbar -->
+    <header class="bg-dark-card border-b border-dark-border sticky top-0 z-50 px-6 py-3 flex flex-wrap items-center justify-between shadow-lg gap-4">
+        <div class="flex items-center space-x-3">
+            <img src="ToggleAMP.png" alt="ToggleAMP" class="h-9 max-w-[160px] object-contain drop-shadow">
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-lg tracking-tight text-white">ToggleAMP</span>
+                    <span id="appVersionBadge" class="text-xs px-2 py-0.5 rounded-full bg-teal-950 text-teal-400 border border-teal-800/60 font-semibold font-mono">v1.3.0</span>
+                </div>
+                <p data-i18n="nav.title_sub" class="text-[11px] text-slate-400">Multi-Stack Local Dev Environment</p>
+            </div>
+        </div>
+
+        <!-- Runtime Switchers In Header -->
+        <div class="flex items-center space-x-2 bg-slate-900/80 border border-slate-700/60 rounded-xl p-1.5 shadow-inner">
+            <!-- Web Server Switch -->
+            <div class="flex items-center space-x-1 pr-2 border-r border-slate-800">
+                <span class="text-[11px] font-semibold text-slate-400 px-1.5 flex items-center space-x-1">
+                    <i class="fa-solid fa-server text-teal-400 text-xs"></i>
+                    <span data-i18n="nav.web_label">Web:</span>
+                </span>
+                <button id="btnSwitchNginx" class="px-2.5 py-1 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-400 hover:text-white">Nginx</button>
+                <button id="btnSwitchApache" class="px-2.5 py-1 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-400 hover:text-white">Apache</button>
+            </div>
+
+            <!-- PHP Version Switch -->
+            <div class="flex items-center space-x-1.5">
+                <span class="text-[11px] font-semibold text-slate-400 flex items-center space-x-1">
+                    <i class="fa-solid fa-code text-indigo-400 text-xs"></i>
+                    <span data-i18n="nav.php_label">PHP:</span>
+                </span>
+                <select id="selectPhpVersion" class="bg-slate-800 border border-slate-700 text-xs text-white rounded-lg px-2 py-1 focus:outline-none focus:border-teal-500 font-mono font-semibold cursor-pointer min-w-[90px]">
+                    <option value="" disabled>Loading...</option>
+                </select>
+            </div>
+
+            <!-- DB Engine Switch -->
+            <div class="flex items-center space-x-1.5 pl-2">
+                <span class="text-[11px] font-semibold text-slate-400 flex items-center space-x-1">
+                    <i class="fa-solid fa-database text-sky-400 text-xs"></i>
+                    <span data-i18n="nav.db_label">DB:</span>
+                </span>
+                <select id="selectDbEngine" class="bg-slate-800 border border-slate-700 text-xs text-white rounded-lg px-2 py-1 focus:outline-none focus:border-teal-500 font-mono font-semibold cursor-pointer min-w-[120px]">
+                    <option value="" disabled>Loading...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Global Actions & Language Switcher -->
+        <div class="flex items-center space-x-2.5">
+            <!-- Language Switcher Dropdown -->
+            <div class="flex items-center bg-slate-900/90 border border-slate-700/70 rounded-xl px-2 py-1 shadow-inner" title="Language / 언어 / 言語">
+                <i class="fa-solid fa-globe text-teal-400 text-xs mr-1.5"></i>
+                <select id="selectLanguage" class="bg-transparent text-xs text-white focus:outline-none font-semibold cursor-pointer">
+                    <option value="en" class="bg-slate-900 text-white">English</option>
+                    <option value="ko" class="bg-slate-900 text-white">한국어</option>
+                    <option value="ja" class="bg-slate-900 text-white">日本語</option>
+                </select>
+            </div>
+
+            <button id="btnOpenConfigModal" class="px-3.5 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm" title="Configuration Editor">
+                <i class="fa-solid fa-sliders text-[10px]"></i>
+                <span data-i18n="nav.config">Settings</span>
+            </button>
+            <button id="btnStartAll" class="px-3.5 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 transition shadow-md shadow-teal-500/20 active:scale-95">
+                <i class="fa-solid fa-play text-[10px]"></i>
+                <span data-i18n="nav.start_all">Start All</span>
+            </button>
+            <button id="btnStopAll" class="px-3.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold text-xs flex items-center space-x-1.5 transition active:scale-95">
+                <i class="fa-solid fa-stop text-[10px]"></i>
+                <span data-i18n="nav.stop_all">Stop All</span>
+            </button>
+            <button id="btnSyncVHosts" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs flex items-center space-x-1.5 transition" title="Sync VHosts & Hosts file">
+                <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
+                <span data-i18n="nav.sync">Sync</span>
+            </button>
+            <button id="btnOpenWww" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs flex items-center space-x-1.5 transition" title="Open Projects Folder">
+                <i class="fa-solid fa-folder-open text-[10px]"></i>
+                <span data-i18n="nav.www">www</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+
+        <!-- Version Mismatch Alert Banner -->
+        <div id="versionMismatchBanner" class="hidden p-4 rounded-2xl bg-rose-950/80 border border-rose-500/60 text-rose-200 flex items-center justify-between shadow-xl ring-1 ring-rose-500/40 animate-pulse">
+            <div class="flex items-center space-x-3.5">
+                <div class="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-400 text-base"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-xs text-rose-100 flex items-center space-x-2">
+                        <span data-i18n="version.mismatch_title">버전 불일치 경고 (Version Integrity Mismatch)</span>
+                        <span data-i18n="version.mismatch_detected" class="px-2 py-0.5 rounded bg-rose-900/80 border border-rose-600 text-[10px] uppercase font-mono">Mismatch Detected</span>
+                    </div>
+                    <div id="versionMismatchText" class="text-[11px] text-rose-300 font-mono mt-0.5"></div>
+                </div>
+            </div>
+            <button onclick="document.getElementById('versionMismatchBanner').classList.add('hidden')" class="text-rose-400 hover:text-white px-2.5 py-1 text-xs rounded-lg hover:bg-rose-900/50 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Services Grid -->
+        <section>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center space-x-2">
+                    <i class="fa-solid fa-layer-group text-teal-400"></i>
+                    <span data-i18n="services.title">Active Stack Services</span>
+                </h2>
+                <span id="serviceSummary" data-i18n="services.checking" class="text-xs text-slate-500">Checking services...</span>
+            </div>
+
+            <div id="servicesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Dynamically populated service cards -->
+            </div>
+        </section>
+
+        <!-- Two Columns: Sites Manager & Packages/Tools -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Virtual Hosts & Sites (2 Cols) -->
+            <section class="lg:col-span-2 bg-dark-card border border-dark-border rounded-2xl p-5 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-globe text-cyan-400"></i>
+                            <span data-i18n="vhosts.title">Virtual Hosts (*.test)</span>
+                        </h2>
+                        <p data-i18n="vhosts.subtitle" class="text-xs text-slate-400">Auto-detected projects with local SSL and DNS</p>
+                    </div>
+                    <button id="btnNewSiteModal" class="px-3 py-1.5 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-semibold flex items-center space-x-1.5 transition">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span data-i18n="vhosts.btn_new_site">New Site</span>
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="text-xs text-slate-400 bg-slate-800/40 rounded-lg">
+                            <tr>
+                                <th data-i18n="vhosts.th_name" class="p-3">Site Name</th>
+                                <th data-i18n="vhosts.th_domain" class="p-3">Domain & Direct Localhost</th>
+                                <th data-i18n="vhosts.th_type" class="p-3">Type</th>
+                                <th data-i18n="vhosts.th_doc_root" class="p-3">Document Root</th>
+                                <th data-i18n="vhosts.th_actions" class="p-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sitesTableBody" class="divide-y divide-dark-border/60">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Hosts File Sync Helper Notice -->
+                <div class="text-[11px] text-slate-400 bg-slate-900/70 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-circle-info text-teal-400 text-xs"></i>
+                        <span data-i18n="vhosts.hosts_notice">If <strong>.test domain</strong> fails to connect, sync Hosts file or access via <strong>localhost/foldername</strong> directly.</span>
+                    </div>
+                    <button id="btnElevateHosts" class="px-2.5 py-1 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-bold transition flex items-center space-x-1">
+                        <i class="fa-solid fa-shield-halved text-[10px]"></i>
+                        <span data-i18n="vhosts.btn_elevate_hosts">Sync Hosts (Admin Privileges)</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Quick Tools & Package Manager (1 Col) -->
+            <section class="bg-dark-card border border-dark-border rounded-2xl p-5 shadow-sm space-y-4">
+                <div>
+                    <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+                        <span data-i18n="tools.title">Quick Tools & Packages</span>
+                    </h2>
+                    <p data-i18n="tools.subtitle" class="text-xs text-slate-400">Fast access to database & version downloads</p>
+                </div>
+
+                <div class="space-y-2.5">
+                    <!-- phpMyAdmin Latest (myadmin) -->
+                    <a id="linkPhpMyAdminLatest" href="http://localhost/myadmin/" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 transition group">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-sm">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-white group-hover:text-teal-300 flex items-center space-x-1.5">
+                                    <span data-i18n="tools.pma_latest_title">phpMyAdmin (Latest)</span>
+                                    <span data-i18n="tools.pma_latest_badge" class="text-[9px] px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30">PHP 7.x~8.x</span>
+                                </div>
+                                <div class="text-xs text-slate-400 font-mono">http://localhost/myadmin</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 group-hover:text-teal-400"></i>
+                    </a>
+
+                    <!-- phpMyAdmin 3.1.3.1 (phpmyadmin) -->
+                    <a id="linkPhpMyAdmin3" href="http://localhost/phpmyadmin/" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 transition group">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-white group-hover:text-amber-300 flex items-center space-x-1.5">
+                                    <span data-i18n="tools.pma_31_title">phpMyAdmin 3.1</span>
+                                    <span data-i18n="tools.pma_31_badge" class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">PHP 5.2 Legacy</span>
+                                </div>
+                                <div class="text-xs text-slate-400 font-mono">http://localhost/phpmyadmin</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 group-hover:text-amber-400"></i>
+                    </a>
+
+
+                    <a id="linkMailpit" href="http://localhost:8025" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 transition group">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
+                                <i class="fa-solid fa-envelope-open-text"></i>
+                            </div>
+                            <div>
+                                <div data-i18n="tools.mailpit_title" class="text-sm font-semibold text-white group-hover:text-teal-300">Mailpit Webmail</div>
+                                <div data-i18n="tools.mailpit_desc" class="text-xs text-slate-400">Catch local outgoing emails (Port 8025)</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 group-hover:text-teal-400"></i>
+                    </a>
+
+                    <!-- Package Catalog & Downloader -->
+                    <div class="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span data-i18n="tools.packages_title" class="text-xs font-bold text-slate-200">Runtime Packages</span>
+                            <span data-i18n="tools.packages_subtitle" class="text-[10px] text-slate-400">1-Click Install</span>
+                        </div>
+                        <div id="packageList" class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Real-Time Logs Console -->
+        <section class="bg-dark-card border border-dark-border rounded-2xl p-5 shadow-sm space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-terminal text-teal-400"></i>
+                    <h2 data-i18n="logs.title" class="text-base font-bold text-white">Live Activity & Log Stream</h2>
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
+                    </span>
+                    <span id="logCountBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-teal-400 border border-slate-700">0 logs</span>
+                </div>
+                <div class="flex items-center flex-wrap gap-2">
+                    <!-- Service Filters -->
+                    <div class="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-lg border border-slate-800 text-xs" id="logFilterBar">
+                        <button class="log-filter-btn px-2.5 py-0.5 rounded text-teal-300 bg-teal-500/20 border border-teal-500/30 transition font-medium" data-filter="all">전체</button>
+                        <button class="log-filter-btn px-2.5 py-0.5 rounded text-slate-400 hover:text-white transition font-medium" data-filter="webserver">웹서버</button>
+                        <button class="log-filter-btn px-2.5 py-0.5 rounded text-slate-400 hover:text-white transition font-medium" data-filter="php">PHP</button>
+                        <button class="log-filter-btn px-2.5 py-0.5 rounded text-slate-400 hover:text-white transition font-medium" data-filter="database">DB</button>
+                        <button class="log-filter-btn px-2.5 py-0.5 rounded text-slate-400 hover:text-white transition font-medium" data-filter="system">시스템</button>
+                        <button class="log-filter-btn px-2.5 py-0.5 rounded text-rose-400 hover:text-rose-300 transition font-medium" data-filter="error">오류</button>
+                    </div>
+
+                    <span id="logFileBadge" class="text-[11px] text-slate-400 font-mono hidden xl:inline-flex items-center space-x-1.5 bg-slate-900/90 px-2.5 py-1 rounded-lg border border-slate-800">
+                        <i class="fa-solid fa-file-lines text-teal-400 text-[10px]"></i>
+                        <span id="logFilePath">logs/activity/activity-today.log</span>
+                    </span>
+                    <button id="btnOpenLogFolder" class="text-xs text-slate-300 hover:text-white px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg flex items-center space-x-1 transition" title="Open logs directory in Explorer">
+                        <i class="fa-solid fa-folder-open text-xs text-amber-400"></i>
+                        <span data-i18n="logs.btn_open_folder">Open Log Folder</span>
+                    </button>
+                    <button id="btnClearLogs" data-i18n="logs.btn_clear" class="text-xs text-slate-400 hover:text-white px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition">Clear</button>
+                </div>
+            </div>
+            <div id="terminal" class="bg-black/90 font-mono text-xs text-slate-200 p-4 rounded-xl h-64 overflow-y-auto space-y-1 border border-slate-800 shadow-inner">
+                <div data-i18n="logs.connected" class="text-slate-500">[system] Connected to ToggleAMP daemon log stream...</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal: New Site -->
+    <div id="newSiteModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-dark-card border border-dark-border rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 data-i18n="modal.new_site_title" class="text-lg font-bold text-white">Create New Local Site</h3>
+                <button id="btnCloseModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label data-i18n="modal.site_dir_label" class="block text-xs font-semibold text-slate-400 mb-1">Site Directory Name</label>
+                    <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg px-3 py-2">
+                        <input id="siteNameInput" type="text" placeholder="my-app" class="bg-transparent text-sm text-white focus:outline-none w-full font-mono">
+                        <span class="text-slate-500 text-xs font-mono">.test</span>
+                    </div>
+                </div>
+                <div>
+                    <label data-i18n="modal.project_type_label" class="block text-xs font-semibold text-slate-400 mb-1">Template / Project Type</label>
+                    <select id="siteTemplateSelect" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none w-full">
+                        <option value="php" data-i18n="modal.type_php">PHP Standard (phpinfo, custom code)</option>
+                        <option value="laravel" data-i18n="modal.type_laravel">Laravel Framework (public/ index)</option>
+                        <option value="static" data-i18n="modal.type_static">Static HTML / Frontend</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-2 pt-2">
+                <button id="btnCancelSite" data-i18n="modal.btn_cancel" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold">Cancel</button>
+                <button id="btnConfirmSite" data-i18n="modal.btn_create" class="px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-sm font-bold">Create Site</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Configuration Editor -->
+    <div id="configModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-dark-card border border-dark-border rounded-2xl max-w-4xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-dark-border/60 pb-3">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-950/60 border border-indigo-800/50 flex items-center justify-center text-indigo-400">
+                        <i class="fa-solid fa-sliders text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 data-i18n="modal.config_title" class="text-base font-bold text-white">Configuration Editor</h3>
+                        <p id="configFilePath" class="text-[11px] text-slate-400 font-mono">config/php/php.ini</p>
+                    </div>
+                </div>
+                <button id="btnCloseConfigModal" class="text-slate-400 hover:text-white p-1 rounded-lg transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex items-center space-x-1 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
+                <button data-tab="php" class="config-tab-btn flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition bg-teal-500 text-slate-950 shadow-sm flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-code text-xs"></i>
+                    <span>PHP (php.ini)</span>
+                </button>
+                <button data-tab="nginx" class="config-tab-btn flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-globe text-xs"></i>
+                    <span>Nginx (nginx.conf)</span>
+                </button>
+                <button data-tab="apache" class="config-tab-btn flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-server text-xs"></i>
+                    <span>Apache (httpd.conf)</span>
+                </button>
+                <button data-tab="mysql" class="config-tab-btn flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-database text-xs"></i>
+                    <span>Database (my.ini)</span>
+                </button>
+                <button data-tab="ToggleAMP" class="config-tab-btn flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-bolt text-xs"></i>
+                    <span>ToggleAMP.json</span>
+                </button>
+            </div>
+
+            <!-- Version Sub-Selector Bar -->
+            <div id="configVersionBar" class="flex items-center space-x-1.5 bg-slate-900/40 p-1.5 rounded-lg border border-slate-800/60 overflow-x-auto text-xs">
+                <!-- Dynamically populated version pill buttons -->
+            </div>
+
+            <!-- Quick Presets for Active Tab -->
+            <div id="configQuickPresets" class="flex flex-wrap items-center gap-2 text-xs py-1.5 px-2.5 bg-slate-900/50 rounded-lg border border-slate-800/80">
+                <span class="text-slate-400 font-semibold text-[11px] flex items-center space-x-1">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400 text-[10px]"></i>
+                    <span data-i18n="modal.presets_title">Quick Presets:</span>
+                </span>
+                <div id="presetButtons" class="flex flex-wrap items-center gap-1.5">
+                    <!-- Dynamic Preset Chips -->
+                </div>
+            </div>
+
+            <!-- Code Editor Area -->
+            <div class="flex-1 min-h-[320px] relative rounded-xl overflow-hidden border border-slate-700 bg-slate-950 flex flex-col">
+                <textarea id="configContentTextarea" class="flex-1 w-full p-4 bg-transparent text-emerald-300 font-mono text-xs leading-relaxed focus:outline-none resize-none overflow-y-auto" spellcheck="false" placeholder="Loading configuration..."></textarea>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between pt-2 border-t border-dark-border/60">
+                <div class="flex items-center space-x-2">
+                    <span id="configSaveStatus" class="text-xs text-emerald-400 font-medium hidden flex items-center space-x-1">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span data-i18n="modal.saved">Saved & Applied successfully!</span>
+                    </span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="btnCancelConfigModal" data-i18n="modal.btn_cancel" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">Cancel</button>
+                    <button id="btnSaveConfig" class="px-5 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold transition flex items-center space-x-1.5 shadow-md shadow-teal-500/20 active:scale-95">
+                        <i class="fa-solid fa-floppy-disk text-xs"></i>
+                        <span data-i18n="modal.btn_save">Save & Apply</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Version & Patch Notes Modal -->
+    <div id="versionModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm hidden animate-fade-in">
+        <div class="bg-dark-card border border-dark-border rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-dark-border pb-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+                        <i class="fa-solid fa-code-branch text-base"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                            <span>nobreak Version & Release Notes</span>
+                            <span id="versionModalBadge" class="text-xs px-2 py-0.5 rounded-full bg-teal-950 text-teal-400 border border-teal-800/60 font-mono font-bold">v1.3.0</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Master Version (VERSION.txt) & Multi-language History (version/)</p>
+                    </div>
+                </div>
+                <button id="btnCloseVersionModal" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Version Status Summary -->
+            <div id="versionModalStatusBox" class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-xs flex items-center justify-between font-mono">
+                <div class="flex items-center space-x-2 text-slate-300">
+                    <i class="fa-solid fa-shield-halved text-teal-400"></i>
+                    <span id="versionModalStatusText">Version Integrity: Verified (Match)</span>
+                </div>
+                <span id="versionModalCodeTag" class="text-[11px] text-teal-400 bg-teal-950/80 px-2 py-0.5 rounded border border-teal-800">Code: v1.3.0</span>
+            </div>
+
+            <!-- Changelog Raw Viewer -->
+            <div class="flex-1 min-h-[260px] rounded-xl overflow-hidden border border-slate-800 bg-slate-950 p-4 font-mono text-xs text-slate-300 overflow-y-auto leading-relaxed whitespace-pre-wrap selection:bg-teal-500/30" id="versionChangelogContent">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end pt-2 border-t border-dark-border">
+                <button id="btnDismissVersionModal" class="px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold transition shadow-md shadow-teal-500/20 active:scale-95">
+                    확인 (Close)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Delete Virtual Host Confirmation -->
+    <div id="deleteVHostModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 animate-fade-in">
+        <div class="bg-dark-card border border-rose-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                        <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 data-i18n="modal.delete_vhost_title" class="text-base font-bold text-white">가상 호스트 및 프로젝트 삭제</h3>
+                        <span data-i18n="modal.delete_vhost_badge" class="text-[10px] text-rose-400 font-semibold bg-rose-950/80 px-2 py-0.5 rounded border border-rose-800/60">영구 삭제 경고</span>
+                    </div>
+                </div>
+                <button id="btnCloseDeleteVHostModal" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-rose-950/30 border border-rose-900/50 space-y-2 text-xs">
+                <div class="flex items-center justify-between font-mono">
+                    <span class="text-slate-400">Project / Host:</span>
+                    <span id="deleteVHostName" class="text-rose-300 font-bold"></span>
+                </div>
+                <div class="flex items-center justify-between font-mono">
+                    <span class="text-slate-400">Domain:</span>
+                    <span id="deleteVHostDomain" class="text-cyan-300"></span>
+                </div>
+                <div class="flex items-center justify-between font-mono">
+                    <span class="text-slate-400">Path:</span>
+                    <span id="deleteVHostPath" class="text-slate-300"></span>
+                </div>
+            </div>
+
+            <div class="text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex items-start space-x-2.5">
+                <i class="fa-solid fa-circle-exclamation text-amber-400 text-sm mt-0.5 flex-shrink-0"></i>
+                <p data-i18n="modal.delete_vhost_warning" class="space-y-1">
+                    이 작업은 <strong>되돌릴 수 없습니다</strong>.<br>
+                    해당 프로젝트 폴더 내의 <strong>모든 소스 코드 및 파일</strong>, Nginx/Apache 가상 호스트 설정, SSL 인증서가 완전히 삭제됩니다.
+                </p>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-800">
+                <button id="btnCancelDeleteVHost" data-i18n="modal.btn_cancel" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+                    취소 (Cancel)
+                </button>
+                <button id="btnConfirmDeleteVHost" class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition flex items-center space-x-1.5 shadow-lg shadow-rose-600/30 active:scale-95">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                    <span id="deleteVHostBtnText" data-i18n="modal.delete_vhost_confirm_btn">영구 삭제 확인</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-800 bg-slate-950/80 py-4 px-6 text-xs text-slate-400 flex items-center justify-center font-mono">
+        <div class="flex items-center space-x-2">
+            <span class="font-bold text-slate-200">ToggleAMP v1.3.0</span>
+            <span class="text-slate-600">&bull;</span>
+            <span class="text-slate-400">Modern Multi-Stack Local Development Environment</span>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

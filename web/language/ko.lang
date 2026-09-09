@@ -1,0 +1,118 @@
+{
+  "nav": {
+    "title_sub": "멀티 스택 로컬 개발 환경",
+    "web_label": "웹서버:",
+    "php_label": "PHP:",
+    "db_label": "DB:",
+    "config": "환경설정",
+    "start_all": "Start All",
+    "stop_all": "Stop All",
+    "shutdown": "종료",
+    "sync": "동기화",
+    "www": "www"
+  },
+  "services": {
+    "title": "실행 중인 스택 서비스",
+    "checking": "서비스 상태 확인 중...",
+    "active_count": "{count} / {total} 실행 중",
+    "btn_start": "시작",
+    "btn_stop": "정지",
+    "btn_restart": "재시작",
+    "uptime": "가동시간: {time}",
+    "port": "포트: {port}",
+    "pid": "PID: {pid}"
+  },
+  "vhosts": {
+    "title": "가상 호스트 (*.test)",
+    "subtitle": "로컬 SSL 및 DNS가 자동 구성된 프로젝트 목록",
+    "btn_new_site": "새 사이트",
+    "th_name": "사이트 이름",
+    "th_domain": "도메인 및 로컬 주소",
+    "th_type": "유형",
+    "th_doc_root": "문서 루트",
+    "th_actions": "관리",
+    "btn_open_folder": "탐색기에서 폴더 열기",
+    "btn_open_browser": "브라우저에서 열기 (.test)",
+    "btn_delete": "가상 호스트 및 파일 영구 삭제",
+    "empty": "www/ 폴더에 생성된 사이트가 없습니다.",
+    "hosts_notice": "<strong>.test 도메인</strong> 연결이 안 될 경우 <strong>Hosts 동기화</strong>를 실행하시거나 <strong>localhost/폴더명</strong>으로 바로 접속 가능합니다.",
+    "btn_elevate_hosts": "Hosts 관리자 권한 동기화",
+    "hosts_syncing": "동기화 요청 중...",
+    "hosts_synced": "동기화 완료"
+  },
+  "tools": {
+    "title": "빠른 도구 및 패키지 관리",
+    "subtitle": "데이터베이스 관리 도구 및 런타임 패키지",
+    "pma_latest_title": "phpMyAdmin (최신)",
+    "pma_latest_badge": "PHP 7.x~8.x",
+    "pma_31_title": "phpMyAdmin 3.1",
+    "pma_31_badge": "PHP 5.2 전용",
+    "mailpit_title": "Mailpit Webmail",
+    "mailpit_desc": "로컬 발송 메일 모니터링 (포트 8025)",
+    "packages_title": "런타임 패키지",
+    "packages_subtitle": "1-클릭 설치 및 관리"
+  },
+  "packages": {
+    "btn_install": "설치",
+    "btn_installing": "설치 중...",
+    "btn_apply": "적용",
+    "btn_delete": "삭제",
+    "badge_active": "Active",
+    "installed": "설치됨",
+    "core_protected": "기본 내장",
+    "active_tooltip": "현재 활성화되어 사용 중",
+    "apply_tooltip": "이 버전으로 적용",
+    "delete_tooltip": "패키지 삭제",
+    "install_tooltip": "다운로드 및 설치"
+  },
+  "logs": {
+    "title": "실시간 활동 및 로그 스트림",
+    "btn_open_folder": "로그 폴더 열기",
+    "btn_clear": "비우기",
+    "connected": "[system] ToggleAMP 데몬 로그 스트림에 연결되었습니다..."
+  },
+  "modal": {
+    "new_site_title": "새 로컬 사이트 생성",
+    "site_dir_label": "사이트 폴더 이름",
+    "project_type_label": "템플릿 / 프로젝트 유형",
+    "type_php": "PHP 기본 (phpinfo, 커스텀 코드)",
+    "type_laravel": "Laravel 프레임워크 (public/ index)",
+    "type_static": "정적 HTML / 프론트엔드",
+    "btn_cancel": "취소",
+    "btn_create": "사이트 생성",
+    "config_title": "환경설정 편집기",
+    "config_tab_php": "PHP 설정",
+    "config_tab_web": "웹서버 설정",
+    "config_tab_db": "데이터베이스 설정",
+    "config_tab_system": "일반 환경설정",
+    "btn_save": "저장 및 적용",
+    "saving": "저장 중...",
+    "delete_vhost_title": "가상 호스트 및 프로젝트 삭제",
+    "delete_vhost_badge": "영구 삭제 경고",
+    "delete_vhost_warning": "이 작업은 <strong>되돌릴 수 없습니다</strong>.<br>해당 프로젝트 디렉터리 내의 <strong>모든 소스 코드 및 파일</strong>, Nginx/Apache VHost 설정, SSL 인증서가 완전히 삭제됩니다.",
+    "delete_vhost_confirm_btn": "영구 삭제 확인",
+    "deleting": "삭제 중..."
+  },
+  "alerts": {
+    "locked_while_running": "⚠️ 서버가 실행 중일 때는 런타임을 변경할 수 없습니다.\n먼저 Stop All 또는 해당 서비스를 정지해 주세요.",
+    "webserver_switch_failed": "웹서버 전환 실패",
+    "php_switch_failed": "PHP 버전 전환 실패",
+    "db_switch_failed": "데이터베이스 엔진 전환 실패",
+    "confirm_delete_pkg": "정말로 [ {name} ] 패키지를 삭제하시겠습니까?\n(설치된 바이너리 디렉토리가 삭제됩니다)",
+    "delete_pkg_failed": "패키지 삭제에 실패했습니다.",
+    "delete_req_error": "삭제 요청 중 오류가 발생했습니다: ",
+    "active_pkg_cannot_delete": "현재 활성화되어 사용 중인 패키지는 삭제할 수 없습니다. 다른 버전으로 변경 후 삭제해 주세요.",
+    "core_pkg_cannot_delete": "PHP 5.2.9 및 MySQL 5.1.33은 ToggleAMP 필수 레거시 기본 패키지이므로 삭제할 수 없습니다.",
+    "vhost_deleted": "가상 호스트 및 프로젝트 파일이 영구 삭제되었습니다.",
+    "confirm_shutdown": "ToggleAMP 데몬 및 모든 스택 서비스를 완전히 종료하시겠습니까?",
+    "shutdown_complete": "ToggleAMP 데몬 및 모든 서비스가 안전하게 종료되었습니다.\n이 브라우저 창을 닫으셔도 좋습니다."
+  },
+  "version": {
+    "mismatch_title": "버전 무결성 불일치 경고",
+    "mismatch_detected": "버전 불일치 감지",
+    "mismatch_desc": "실제 코드 버전(v{code})과 VERSION.txt(v{file}) 버전이 일치하지 않습니다."
+  },
+  "developer": {
+    "title": "개발자 정보"
+  }
+}

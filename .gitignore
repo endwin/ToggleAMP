@@ -1,0 +1,51 @@
+# ==============================================================================
+# ⚡ ToggleAMP — Git Ignore Rules
+# ==============================================================================
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.temp
+*.pid
+.vscode/
+.idea/
+
+# Runtime Data & Transient DB Storage
+data/db/*
+!data/db/.gitkeep
+data/mysql/*
+!data/mysql/.gitkeep
+data/redis/*
+!data/redis/.gitkeep
+logs/*
+!logs/.gitkeep
+temp/*
+!temp/.gitkeep
+*.log
+
+# User Local Projects & VHosts (External Junctions)
+www/koken*
+www/ragezone*
+config/*/vhosts/koken*
+config/*/vhosts/ragezone*
+data/ssl/koken*
+data/ssl/ragezone*
+
+# Large Backup Archives & Installers (Over GitHub 100MB limit)
+*.zip
+*.7z
+*.rar
+*.tar.gz
+*.iso
+nobreak-setup-*.exe
+end-setup-*.exe
+end-server-setup-*.exe
+ToggleAMP-setup-*.exe
+
+# Intermediate Scratch Files
+scratch/
+*.obj
+*.pdb
+

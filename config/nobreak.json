@@ -1,0 +1,36 @@
+{
+  "name": "ToggleAMP",
+  "version": "1.3.0",
+  "app_port": 4000,
+  "domain_suffix": "test",
+  "auto_vhost": true,
+  "auto_ssl": true,
+  "auto_start": false,
+  "webserver": {
+    "active": "apache",
+    "port": 80,
+    "ssl_port": 443
+  },
+  "php": {
+    "active_version": "8.4",
+    "port": 9000
+  },
+  "database": {
+    "engine": "mariadb",
+    "active_version": "11.4",
+    "port": 3306
+  },
+  "redis": {
+    "enabled": true,
+    "version": "5.0.14",
+    "port": 6379
+  },
+  "mailpit": {
+    "enabled": true,
+    "web_port": 8025,
+    "smtp_port": 1025
+  },
+  "developer": {
+    "name": "ezya"
+  }
+}

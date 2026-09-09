@@ -1,0 +1,39 @@
+1.3.0
+
+# ==============================================================================
+# ⚡ ToggleAMP — Modern Multi-Stack Local Development Environment
+# 📄 Version History & Release Notes
+# ==============================================================================
+
+# [v1.3.0] - 2026-09-06
+- [Brand] Official project & executable rebranding to 'ToggleAMP'
+- [Installer/Setup] Standalone All-In-One GUI Installer ToggleAMP-setup-v1.3.0.exe and uninstall.exe (Path selection, shortcuts, Windows Registry)
+- [Database] Focused, optimized MariaDB (11.4 LTS, 10.11 LTS) and MySQL (8.4 LTS, 8.0, 5.1 Legacy) multi-engine stack
+- [Safety] Protected Core Lock preventing accidental deletion of PHP 5.2.9 and MySQL 5.1.33
+- [Desktop/C#] Native C# Windows System Tray & Integrated Control Center Window (ToggleAMP.exe)
+- [Desktop/UI] Intuitive header layout, active stack badges, live tracking of 5 services (Web/PHP/DB/Redis/Mailpit)
+- [Desktop/Control] Dynamic [ Start ] ↔ [ Stop ] toggle buttons based on service state & large live activity log console
+- [Desktop/Tray] Anti-flickering stable tray submenus & filtering to only show installed runtimes in bin/
+- [Desktop/Tools] Dual phpMyAdmin (Latest v5.2 / Legacy 3.1) integration with real-time activation based on active PHP version (PHP 5.2 ↔ PHP 7~8)
+- [Desktop/Sync] Real-time reflection of installed/deleted PHP & Database packages in tray and control center
+- [Desktop/Icon] Multi-resolution Windows .ico generated for ToggleAMP applied across ToggleAMP.exe, tray, shortcut, and window
+- [i18n] Real-time 3-language switching (Korean, English, Japanese) across tray menu and desktop window
+- [Feature/VHosts] One-click permanent virtual host (*.test) & project deletion with safety confirmation modal
+- [Fix/Redis] Embedded Redis 5.0.14.1 Windows binaries and service supervisor integration
+- [Shutdown] Independent reliable shutdown via Desktop Window, Tray Menu, ToggleAMP-stop.cmd, and CLI (Removed dashboard exit button)
+- [System] Unified master version management based on VERSION.txt
+
+# [v1.2.0] - 2026-09-01
+- [Database] Auto-initialization support for MariaDB 11.4 LTS and MySQL 8.4 LTS
+- [System/Integrity] Centralized version management with real-time integrity verification
+
+# [v1.1.0] - 2026-09-01
+- [i18n] Multi-language support (.lang packs: English, Korean, Japanese)
+- [Safety] Safe lock mechanism preventing accidental runtime switching during active service execution
+- [Packages] Quick Tools & Runtime packages 1-click installation and manager
+
+# [v1.0.0] - 2026-08-31
+- [Architecture] Standalone portable multi-stack environment without installer
+- [Web Server] Nginx 1.26.1 ⇄ Apache HTTPD 2.4.68 instant 1-click switching
+- [PHP] PHP 5.2.9 Legacy to 8.4.25 multi-runtime switching
+- [Database] MariaDB (11.4 LTS, 10.11 LTS) and MySQL (8.4 LTS, 8.0, 5.1.33 Legacy) support

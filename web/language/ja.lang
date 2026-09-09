@@ -1,0 +1,117 @@
+{
+  "nav": {
+    "title_sub": "マルチスタック ローカル開発環境",
+    "web_label": "Webサーバー:",
+    "php_label": "PHP:",
+    "db_label": "DB:",
+    "config": "環境設定",
+    "start_all": "Start All",
+    "stop_all": "Stop All",
+    "shutdown": "終了",
+    "sync": "同期",
+    "www": "www"
+  },
+  "services": {
+    "title": "アクティブなスタックサービス",
+    "checking": "サービス状態を確認中...",
+    "active_count": "{count} / {total} 稼働中",
+    "btn_start": "開始",
+    "btn_stop": "停止",
+    "btn_restart": "再起動",
+    "uptime": "稼働時間: {time}",
+    "port": "ポート: {port}",
+    "pid": "PID: {pid}"
+  },
+  "vhosts": {
+    "title": "バーチャルホスト (*.test)",
+    "subtitle": "ローカルSSLおよびDNS自動設定プロジェクト",
+    "btn_new_site": "新規サイト",
+    "th_name": "サイト名",
+    "th_domain": "ドメイン & ローカルアドレス",
+    "th_type": "タイプ",
+    "th_doc_root": "ドキュメントルート",
+    "th_actions": "アクション",
+    "btn_open_folder": "エクスプローラーでフォルダを開く",
+    "btn_open_browser": "ブラウザで開く (.test)",
+    "btn_delete": "バーチャルホストおよび全ファイルの完全削除",
+    "empty": "www/ フォルダにサイトが見つかりません。",
+    "hosts_notice": "<strong>.test ドメイン</strong>に接続できない場合は、<strong>Hosts同期</strong>を実行するか、<strong>localhost/フォルダ名</strong>で直接アクセスできます。",
+    "btn_elevate_hosts": "管理者権限でHostsを同期",
+    "hosts_syncing": "同期リクエスト中...",
+    "hosts_synced": "同期完了"
+  },
+  "tools": {
+    "title": "クイックツール & パッケージ",
+    "subtitle": "データベース管理ツール & ランタイムパッケージ",
+    "pma_latest_title": "phpMyAdmin (最新)",
+    "pma_latest_badge": "PHP 7.x~8.x",
+    "pma_31_title": "phpMyAdmin 3.1",
+    "pma_31_badge": "PHP 5.2 専用",
+    "mailpit_title": "Mailpit Webmail",
+    "mailpit_desc": "ローカル送信メール監視 (ポート 8025)",
+    "packages_title": "ランタイムパッケージ",
+    "packages_subtitle": "ワンクリックでインストール & 管理"
+  },
+  "packages": {
+    "btn_install": "インストール",
+    "btn_installing": "インストール中...",
+    "btn_apply": "適用",
+    "btn_delete": "削除",
+    "badge_active": "Active",
+    "installed": "インストール済み",
+    "active_tooltip": "現在アクティブで使用中",
+    "apply_tooltip": "このバージョンを適用",
+    "delete_tooltip": "パッケージを削除",
+    "install_tooltip": "ダウンロードしてインストール"
+  },
+  "logs": {
+    "title": "リアルタイム ログストリーム",
+    "btn_open_folder": "ログフォルダを開く",
+    "btn_clear": "クリア",
+    "connected": "[system] ToggleAMP デーモンログストリームに接続しました..."
+  },
+  "modal": {
+    "new_site_title": "新規ローカルサイト作成",
+    "site_dir_label": "サイトフォルダ名",
+    "project_type_label": "テンプレート / プロジェクトの種類",
+    "type_php": "PHP 標準 (phpinfo, カスタムコード)",
+    "type_laravel": "Laravel フレームワーク (public/ index)",
+    "type_static": "静的 HTML / フロントエンド",
+    "btn_cancel": "キャンセル",
+    "btn_create": "サイト作成",
+    "config_title": "環境設定エディタ",
+    "config_tab_php": "PHP 設定",
+    "config_tab_web": "Webサーバー設定",
+    "config_tab_db": "データベース設定",
+    "config_tab_system": "一般設定",
+    "btn_save": "保存して適用",
+    "saving": "保存中...",
+    "delete_vhost_title": "バーチャルホストおよびプロジェクトの削除",
+    "delete_vhost_badge": "完全削除の警告",
+    "delete_vhost_warning": "この操作は<strong>取り消せません</strong>。<br>該当プロジェクトフォルダ内の<strong>すべてのソースコードとファイル</strong>、Nginx/ApacheのVHost設定、SSL証明書が完全に削除されます。",
+    "delete_vhost_confirm_btn": "完全削除を確認",
+    "deleting": "削除中..."
+  },
+  "alerts": {
+    "locked_while_running": "⚠️ サーバー稼働中はランタイムを変更できません。\n先にすべてのサーバーを停止してください。",
+    "webserver_switch_failed": "Webサーバーの切り替えに失敗しました",
+    "php_switch_failed": "PHPバージョンの切り替えに失敗しました",
+    "db_switch_failed": "データベースエンジンの切り替えに失敗しました",
+    "confirm_delete_pkg": "本当に [ {name} ] パッケージを削除しますか？\n(インストール済みバイナリディレクトリが削除されます)",
+    "delete_pkg_failed": "パッケージの削除に失敗しました。",
+    "delete_req_error": "削除リクエスト中にエラーが発生しました: ",
+    "active_pkg_cannot_delete": "現在アクティブなパッケージは削除できません。他のバージョンに変更してから削除してください。",
+    "core_pkg_cannot_delete": "PHP 5.2.9 および MySQL 5.1.33 は ToggleAMP 必須レガシー基本パッケージのため削除できません。",
+    "vhost_deleted": "バーチャルホストおよびプロジェクトファイルが完全に削除されました。",
+    "confirm_shutdown": "ToggleAMP デーモンおよびすべてのスタックサービスを完全に終了しますか？",
+    "shutdown_complete": "ToggleAMP デーモンおよびすべてのサービスが安全に終了しました。\nこのブラウザタブを閉じても構いません。"
+  },
+  "version": {
+    "mismatch_title": "バージョン整合性不一致警告",
+    "mismatch_detected": "不一致を検出",
+    "mismatch_desc": "実際のコードバージョン(v{code})とVERSION.txt(v{file})が一致しません。"
+  },
+  "developer": {
+    "title": "開発者情報"
+  }
+}

@@ -490,6 +490,8 @@ namespace ToggleAMPDesktop
             quickFolders.DropDownItems.Add(I18n.T("www_dir"), null, (s, e) => Process.Start("explorer.exe", Path.Combine(baseDir, "www")));
             quickFolders.DropDownItems.Add(I18n.T("logs_dir"), null, (s, e) => Process.Start("explorer.exe", Path.Combine(baseDir, "logs")));
             quickFolders.DropDownItems.Add(I18n.T("config_dir"), null, (s, e) => Process.Start("explorer.exe", Path.Combine(baseDir, "config")));
+            quickFolders.DropDownItems.Add(new ToolStripSeparator());
+            quickFolders.DropDownItems.Add(I18n.CurrentLang == "ko" ? "🖥️ 바탕화면 바로가기 생성" : "🖥️ Create Desktop Shortcut", null, (s, e) => CreateDesktopShortcut());
             trayMenu.Items.Add(quickFolders);
 
             trayMenu.Items.Add(new ToolStripSeparator());
@@ -921,6 +923,32 @@ namespace ToggleAMPDesktop
             catch { }
         }
 
+        public void CreateDesktopShortcut()
+        {
+            try
+            {
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                string lnkPath = Path.Combine(desktopPath, "ToggleAMP.lnk");
+                string exePath = Path.Combine(baseDir, "ToggleAMP.exe");
+                string icoPath = Path.Combine(baseDir, "ToggleAMP.ico");
+
+                Type shellType = Type.GetTypeFromProgID("WScript.Shell");
+                dynamic shell = Activator.CreateInstance(shellType);
+                dynamic shortcut = shell.CreateShortcut(lnkPath);
+                shortcut.TargetPath = exePath;
+                shortcut.WorkingDirectory = baseDir;
+                shortcut.IconLocation = icoPath + ",0";
+                shortcut.Description = "ToggleAMP - Multi-Stack Local Dev";
+                shortcut.Save();
+
+                MessageBox.Show(I18n.CurrentLang == "ko" ? "바탕화면에 ToggleAMP 바로가기가 생성되었습니다." : "Desktop shortcut created successfully.", "ToggleAMP", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Shortcut creation error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void FreePort(int port)
         {
             try
@@ -1060,7 +1088,9 @@ namespace ToggleAMPDesktop
             this.ForeColor = Color.FromArgb(248, 250, 252);
             this.Font = new Font("Segoe UI", 9.25F, FontStyle.Regular);
 
-            string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "nobreak.ico");
+            string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ToggleAMP.ico");
+            if (!File.Exists(iconPath)) iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "web", "ToggleAMP.ico");
+            if (!File.Exists(iconPath)) iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "nobreak.ico");
             if (!File.Exists(iconPath)) iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "web", "nobreak.ico");
 
             if (File.Exists(iconPath))

@@ -1072,6 +1072,13 @@ function scanSites() {
             siteType = 'node';
         }
 
+        // Auto-provision favicon.ico for site if missing
+        const siteFavicon = path.join(docRoot, 'favicon.ico');
+        const defaultFavicon = path.join(ROOT_DIR, 'ToggleAMP.ico');
+        if (!fs.existsSync(siteFavicon) && fs.existsSync(defaultFavicon)) {
+            try { fs.copyFileSync(defaultFavicon, siteFavicon); } catch {}
+        }
+
         const url = config.webserver.port === 80 ? `http://${domain}` : `http://${domain}:${config.webserver.port}`;
         const localUrl = config.webserver.port === 80 ? `http://localhost/${name}` : `http://localhost:${config.webserver.port}/${name}`;
         const sslUrl = config.auto_ssl ? (config.webserver.ssl_port === 443 ? `https://${domain}` : `https://${domain}:${config.webserver.ssl_port}`) : null;

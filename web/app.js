@@ -1124,13 +1124,16 @@ async function uninstallPackage(key, name) {
 
 // Configuration Editor Modal Logic (Version-Specific)
 async function openConfigEditor(tab = 'php', subParam = null) {
+    if (tab === 'webserver') {
+        tab = subParam || currentConfig?.webserver?.active || 'nginx';
+    }
     activeConfigTab = tab;
     configModal.classList.remove('hidden');
     configSaveStatus.classList.add('hidden');
 
     // Update active tab button style
     configTabButtons.forEach(btn => {
-        if (btn.dataset.tab === tab || (tab === 'webserver' && (btn.dataset.tab === 'nginx' || btn.dataset.tab === 'apache'))) {
+        if (btn.dataset.tab === tab) {
             btn.className = 'config-tab-btn flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition bg-teal-500 text-slate-950 shadow-sm flex items-center justify-center space-x-1.5';
         } else {
             btn.className = 'config-tab-btn flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center justify-center space-x-1.5';
@@ -1199,28 +1202,41 @@ async function renderVersionSubBar(tab, subParam) {
         await loadConfigContent('mysql', { engine: parts[0], version: parts[1] });
 
     } else if (tab === 'webserver' || tab === 'nginx' || tab === 'apache') {
-        const servers = filesData?.webserver?.servers || [{ server: 'nginx', title: 'Nginx' }, { server: 'apache', title: 'Apache' }];
-        const activeServer = filesData?.webserver?.active || currentConfig?.webserver?.active || 'nginx';
-        activeConfigSubVersion = subParam || (tab === 'apache' ? 'apache' : (tab === 'nginx' ? 'nginx' : activeServer));
+        const targetServer = (tab === 'nginx' || tab === 'apache') ? tab : (subParam || currentConfig?.webserver?.active || 'nginx');
+        activeConfigTab = targetServer;
+        activeConfigSubVersion = targetServer;
 
-        configVersionBar.innerHTML = `<span class="text-[11px] text-slate-400 font-semibold mr-1 flex items-center"><i class="fa-solid fa-globe mr-1 text-teal-400"></i>웹서버 선택:</span>`;
+        configTabButtons.forEach(btn => {
+            if (btn.dataset.tab === targetServer) {
+                btn.className = 'config-tab-btn flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition bg-teal-500 text-slate-950 shadow-sm flex items-center justify-center space-x-1.5';
+            } else {
+                btn.className = 'config-tab-btn flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center justify-center space-x-1.5';
+            }
+        });
+
+        const servers = filesData?.webserver?.servers || [
+            { server: 'nginx', title: 'Nginx', fileName: 'nginx.conf' },
+            { server: 'apache', title: 'Apache', fileName: 'httpd.conf' }
+        ];
+        const activeServer = filesData?.webserver?.active || currentConfig?.webserver?.active || 'nginx';
+
+        configVersionBar.innerHTML = `<span class="text-[11px] text-slate-400 font-semibold mr-1 flex items-center"><i class="fa-solid fa-globe mr-1 text-teal-400"></i>웹서버 설정:</span>`;
         servers.forEach(s => {
-            const isSelected = s.server === activeConfigSubVersion;
+            const isSelected = s.server === targetServer;
             const isActive = s.server === activeServer;
             const btn = document.createElement('button');
             btn.className = `px-2.5 py-1 rounded-md text-[11px] font-mono font-bold transition flex items-center space-x-1 ${
                 isSelected ? 'bg-teal-600 text-white shadow-sm' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
             }`;
-            btn.innerHTML = `<span>${s.title}</span>${isActive ? '<span class="text-[9px] px-1 py-0.2 bg-teal-400/30 text-teal-200 rounded ml-1">Active</span>' : ''}`;
+            btn.innerHTML = `<span>${s.title} (${s.fileName})</span>${isActive ? '<span class="text-[9px] px-1 py-0.2 bg-teal-400/30 text-teal-200 rounded ml-1">Active</span>' : ''}`;
             btn.addEventListener('click', () => {
-                activeConfigSubVersion = s.server;
-                renderVersionSubBar('webserver', s.server);
+                openConfigEditor(s.server);
             });
             configVersionBar.appendChild(btn);
         });
 
-        renderPresetsForVersion(activeConfigSubVersion);
-        await loadConfigContent(activeConfigSubVersion);
+        renderPresetsForVersion(targetServer);
+        await loadConfigContent(targetServer);
 
     } else {
         // ToggleAMP
@@ -1265,10 +1281,14 @@ function renderPresetsForVersion(category, version = null, engine = null) {
         ],
         nginx: [
             { label: 'Gzip On', apply: (txt) => txt.includes('gzip on;') ? txt : txt.replace('http {', 'http {\n    gzip on;\n    gzip_types text/plain text/css application/json application/javascript;') },
-            { label: 'KeepAlive 120s', apply: (txt) => txt.replace(/keepalive_timeout\s+\d+;/g, 'keepalive_timeout  120;') }
+            { label: 'KeepAlive 120s', apply: (txt) => txt.replace(/keepalive_timeout\s+\d+;/g, 'keepalive_timeout  120;') },
+            { label: 'Client Max 128M', apply: (txt) => txt.includes('client_max_body_size') ? txt.replace(/client_max_body_size\s+[^;]+;/g, 'client_max_body_size 128M;') : txt.replace('http {', 'http {\n    client_max_body_size 128M;') },
+            { label: 'Client Max 500M', apply: (txt) => txt.includes('client_max_body_size') ? txt.replace(/client_max_body_size\s+[^;]+;/g, 'client_max_body_size 500M;') : txt.replace('http {', 'http {\n    client_max_body_size 500M;') }
         ],
         apache: [
-            { label: 'KeepAlive On', apply: (txt) => txt.includes('KeepAlive On') ? txt : txt + '\nKeepAlive On\nMaxKeepAliveRequests 100\n' }
+            { label: 'KeepAlive On', apply: (txt) => txt.includes('KeepAlive On') ? txt : txt + '\nKeepAlive On\nMaxKeepAliveRequests 100\n' },
+            { label: 'LimitRequest 128M', apply: (txt) => txt.includes('LimitRequestBody') ? txt.replace(/LimitRequestBody\s+\d+/g, 'LimitRequestBody 134217728') : txt + '\nLimitRequestBody 134217728\n' },
+            { label: 'LimitRequest 500M', apply: (txt) => txt.includes('LimitRequestBody') ? txt.replace(/LimitRequestBody\s+\d+/g, 'LimitRequestBody 524288000') : txt + '\nLimitRequestBody 524288000\n' }
         ],
         ToggleAMP: [],
         nobreak: []
@@ -1330,6 +1350,10 @@ async function saveActiveConfig() {
         payload.version = parts[1];
     } else if (activeConfigTab === 'webserver') {
         payload.server = activeConfigSubVersion;
+    } else if (activeConfigTab === 'nginx') {
+        payload.server = 'nginx';
+    } else if (activeConfigTab === 'apache') {
+        payload.server = 'apache';
     }
 
     try {
@@ -1341,8 +1365,12 @@ async function saveActiveConfig() {
         const data = await res.json();
         if (data.success) {
             configSaveStatus.classList.remove('hidden');
-            configSaveStatus.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${data.message || '저장 및 자동 적용 완료!'}</span>`;
-            setTimeout(() => configSaveStatus.classList.add('hidden'), 4000);
+            if (data.warning) {
+                configSaveStatus.innerHTML = `<div class="flex items-start space-x-1.5 text-amber-300"><i class="fa-solid fa-triangle-exclamation mt-0.5 text-amber-400"></i> <span class="whitespace-pre-wrap font-mono text-[11px]">${data.message}</span></div>`;
+            } else {
+                configSaveStatus.innerHTML = `<div class="flex items-center space-x-1.5 text-emerald-300"><i class="fa-solid fa-circle-check text-emerald-400"></i> <span class="font-semibold text-[11px]">${data.message || '저장 및 자동 적용 완료!'}</span></div>`;
+                setTimeout(() => configSaveStatus.classList.add('hidden'), 4000);
+            }
             fetchStatus();
         } else {
             alert(`저장 실패: ${data.error}`);

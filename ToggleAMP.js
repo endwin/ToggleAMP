@@ -16,7 +16,7 @@ const http = require('http');
 const https = require('https');
 const { spawn, spawnSync, exec, execSync } = require('child_process');
 
-const ROOT_DIR = __dirname;
+const ROOT_DIR = __dirname.replace(/^[a-z]:/, m => m.toUpperCase());
 const CONFIG_DIR = path.join(ROOT_DIR, 'config');
 const BIN_DIR = path.join(ROOT_DIR, 'bin');
 const DATA_DIR = path.join(ROOT_DIR, 'data');
@@ -643,7 +643,27 @@ http {
     include "${path.join(CONFIG_DIR, 'nginx', 'vhosts', '*.conf').replace(/\\/g, '/')}";
 }
 `;
-    fs.writeFileSync(path.join(nginxConfDir, 'nginx.conf'), nginxConf);
+    const nginxConfPath = path.join(nginxConfDir, 'nginx.conf');
+    if (!fs.existsSync(nginxConfPath)) {
+        fs.writeFileSync(nginxConfPath, nginxConf, 'utf8');
+    } else {
+        try {
+            let existing = fs.readFileSync(nginxConfPath, 'utf8');
+            let modified = false;
+            const fastcgiRegex = /fastcgi_pass\s+127\.0\.0\.1:\d+;/g;
+            if (fastcgiRegex.test(existing)) {
+                const expectedFcgi = `fastcgi_pass   127.0.0.1:${config.php.port};`;
+                const updated = existing.replace(fastcgiRegex, expectedFcgi);
+                if (updated !== existing) {
+                    existing = updated;
+                    modified = true;
+                }
+            }
+            if (modified) {
+                fs.writeFileSync(nginxConfPath, existing, 'utf8');
+            }
+        } catch {}
+    }
 
     // 2. Apache (HTTPD) Config
     const apacheConfDir = path.join(CONFIG_DIR, 'apache');
@@ -749,7 +769,39 @@ TypesConfig conf/mime.types
 
 IncludeOptional "${path.join(CONFIG_DIR, 'apache', 'vhosts', '*.conf').replace(/\\/g, '/')}"
 `;
-    fs.writeFileSync(path.join(apacheConfDir, 'httpd.conf'), apacheConf);
+    const apacheConfPath = path.join(apacheConfDir, 'httpd.conf');
+    if (!fs.existsSync(apacheConfPath)) {
+        fs.writeFileSync(apacheConfPath, apacheConf, 'utf8');
+    } else {
+        try {
+            let existing = fs.readFileSync(apacheConfPath, 'utf8');
+            let modified = false;
+
+            const srRegex = /^ServerRoot\s+.*$/m;
+            if (srRegex.test(existing)) {
+                const expectedSr = `ServerRoot "${apacheBinDir.replace(/\\/g, '/')}"`;
+                const currentSr = existing.match(srRegex)[0];
+                if (currentSr !== expectedSr) {
+                    existing = existing.replace(srRegex, expectedSr);
+                    modified = true;
+                }
+            }
+
+            const proxyRegex = /SetHandler\s+"proxy:fcgi:\/\/127\.0\.0\.1:\d+\/?"/g;
+            if (proxyRegex.test(existing)) {
+                const expectedProxy = `SetHandler "proxy:fcgi://127.0.0.1:${config.php.port}/"`;
+                const updated = existing.replace(proxyRegex, expectedProxy);
+                if (updated !== existing) {
+                    existing = updated;
+                    modified = true;
+                }
+            }
+
+            if (modified) {
+                fs.writeFileSync(apacheConfPath, existing, 'utf8');
+            }
+        } catch {}
+    }
 
     // 3. PHP.ini generator (Version-specific & Active)
     getInstalledPhpVersions().forEach(v => generatePhpIni(v));
@@ -1446,12 +1498,35 @@ function reloadWebServer() {
     if (active === 'nginx') {
         const nginxExe = path.join(BIN_DIR, 'nginx', 'nginx.exe');
         if (fs.existsSync(nginxExe)) {
-            try { execSync(`"${nginxExe}" -p "${path.join(BIN_DIR, 'nginx')}" -s reload`, { stdio: 'ignore' }); } catch {}
+            try {
+                execSync(`"${nginxExe}" -t -c "${path.join(CONFIG_DIR, 'nginx', 'nginx.conf')}" -p "${path.join(BIN_DIR, 'nginx')}"`, { stdio: 'pipe' });
+                try {
+                    execSync(`"${nginxExe}" -p "${path.join(BIN_DIR, 'nginx')}" -s reload`, { stdio: 'ignore' });
+                    broadcastLog('webserver', 'Nginx configuration reloaded successfully.');
+                } catch {
+                    stopService('webserver');
+                    setTimeout(() => startService('webserver'), 400);
+                }
+            } catch (err) {
+                const errOut = err.stderr ? err.stderr.toString() : err.message;
+                broadcastLog('error', `Nginx syntax error: ${errOut.trim()}`);
+            }
         }
     } else if (active === 'apache') {
-        // Apache graceful restart
-        stopService('webserver');
-        setTimeout(() => startService('webserver'), 300);
+        const apacheExe = path.join(BIN_DIR, 'apache', 'bin', 'httpd.exe');
+        if (fs.existsSync(apacheExe)) {
+            try {
+                execSync(`"${apacheExe}" -t -f "${path.join(CONFIG_DIR, 'apache', 'httpd.conf')}" -d "${path.join(BIN_DIR, 'apache')}"`, { stdio: 'pipe' });
+                stopService('webserver');
+                setTimeout(() => {
+                    startService('webserver');
+                    broadcastLog('webserver', 'Apache restarted with updated configuration.');
+                }, 400);
+            } catch (err) {
+                const errOut = err.stderr ? err.stderr.toString() : err.message;
+                broadcastLog('error', `Apache syntax error: ${errOut.trim()}`);
+            }
+        }
     }
 }
 
@@ -2190,10 +2265,10 @@ function startDashboardServer() {
                         ? path.join(CONFIG_DIR, 'postgresql', `postgresql-${ver}.conf`)
                         : path.join(CONFIG_DIR, 'mysql', `my-${eng}-${ver}.ini`);
                     isCurrentActive = (eng === config.database.engine && ver === config.database.active_version);
-                } else if (type === 'nginx' || (type === 'webserver' && server === 'nginx')) {
+                } else if (type === 'nginx' || server === 'nginx' || (type === 'webserver' && (server === 'nginx' || (!server && config.webserver.active === 'nginx')))) {
                     targetPath = path.join(CONFIG_DIR, 'nginx', 'nginx.conf');
                     isCurrentActive = (config.webserver.active === 'nginx');
-                } else if (type === 'apache' || (type === 'webserver' && server === 'apache')) {
+                } else if (type === 'apache' || server === 'apache' || (type === 'webserver' && (server === 'apache' || (!server && config.webserver.active === 'apache')))) {
                     targetPath = path.join(CONFIG_DIR, 'apache', 'httpd.conf');
                     isCurrentActive = (config.webserver.active === 'apache');
                 } else if (type === 'ToggleAMP' || type === 'end-server' || type === 'nobreak') {
@@ -2209,7 +2284,8 @@ function startDashboardServer() {
                     fs.writeFileSync(targetPath, content, 'utf8');
                     broadcastLog('system', `Updated configuration file: ${path.basename(targetPath)}`);
 
-                    // Mirror to active php.ini, my.ini, or postgresql.conf if applicable
+                    let syntaxWarning = null;
+                    // Mirror to active php.ini, my.ini, httpd.conf, nginx.conf or postgresql.conf if applicable
                     if (type === 'php') {
                         const targetPhpDir = path.join(BIN_DIR, 'php', `php-${version || config.php.active_version}`);
                         if (fs.existsSync(targetPhpDir)) {
@@ -2234,8 +2310,46 @@ function startDashboardServer() {
                             stopService('database');
                             setTimeout(() => startService('database'), 500);
                         }
-                    } else if (isCurrentActive && (type === 'nginx' || type === 'apache' || type === 'webserver')) {
-                        reloadWebServer();
+                    } else if (type === 'nginx' || server === 'nginx') {
+                        const nginxExe = path.join(BIN_DIR, 'nginx', 'nginx.exe');
+                        if (fs.existsSync(nginxExe)) {
+                            try {
+                                execSync(`"${nginxExe}" -t -c "${targetPath}" -p "${path.join(BIN_DIR, 'nginx')}"`, { stdio: 'pipe' });
+                            } catch (sErr) {
+                                syntaxWarning = (sErr.stderr ? sErr.stderr.toString() : sErr.message).trim();
+                            }
+                        }
+                        if (!syntaxWarning) {
+                            const binNginxConf = path.join(BIN_DIR, 'nginx', 'conf', 'nginx.conf');
+                            if (fs.existsSync(path.dirname(binNginxConf))) {
+                                try { fs.writeFileSync(binNginxConf, content, 'utf8'); } catch {}
+                            }
+                            if (isCurrentActive && services.webserver.state === 'running') {
+                                reloadWebServer();
+                            }
+                        }
+                    } else if (type === 'apache' || server === 'apache') {
+                        const apacheExe = path.join(BIN_DIR, 'apache', 'bin', 'httpd.exe');
+                        if (fs.existsSync(apacheExe)) {
+                            try {
+                                execSync(`"${apacheExe}" -t -f "${targetPath}" -d "${path.join(BIN_DIR, 'apache')}"`, { stdio: 'pipe' });
+                            } catch (sErr) {
+                                syntaxWarning = (sErr.stderr ? sErr.stderr.toString() : sErr.message).trim();
+                            }
+                        }
+                        if (!syntaxWarning) {
+                            const binApacheConf = path.join(BIN_DIR, 'apache', 'conf', 'httpd.conf');
+                            if (fs.existsSync(path.dirname(binApacheConf))) {
+                                try { fs.writeFileSync(binApacheConf, content, 'utf8'); } catch {}
+                            }
+                            if (isCurrentActive && services.webserver.state === 'running') {
+                                reloadWebServer();
+                            }
+                        }
+                    } else if (isCurrentActive && (type === 'webserver')) {
+                        if (services.webserver.state === 'running') {
+                            reloadWebServer();
+                        }
                     } else if (type === 'ToggleAMP' || type === 'nobreak' || type === 'end-server') {
                         try {
                             const parsed = JSON.parse(content);
@@ -2246,9 +2360,10 @@ function startDashboardServer() {
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({
                         success: true,
-                        message: isCurrentActive
-                            ? 'Configuration saved and applied to active service.'
-                            : 'Configuration saved for selected version.'
+                        warning: syntaxWarning,
+                        message: syntaxWarning
+                            ? `설정 파일이 저장되었으나 구문 오류가 발견되었습니다:\n${syntaxWarning}`
+                            : (isCurrentActive ? '설정이 저장되고 웹서버에 즉시 적용되었습니다.' : '설정이 성공적으로 저장되었습니다.')
                     }));
                 } catch (err) {
                     res.writeHead(500, { 'Content-Type': 'application/json' });

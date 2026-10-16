@@ -55,6 +55,7 @@
 - **phpMyAdmin (최신 v5.2.2)**: `http://localhost/myadmin/` (PHP 7.x ~ 8.x MySQL/MariaDB 환경)
 - **phpMyAdmin 3.1 (v3.1.3.1)**: `http://localhost/phpmyadmin/` (PHP 5.2 레거시 환경)
 - 활성화된 PHP 버전에 맞춰 적합한 phpMyAdmin 도구가 자동으로 연동됩니다.
+- **웹 브라우저 로그인 지원**: 쿠키 인증(`cookie`) 방식으로 웹 화면에서 사용자명(`root` 등)과 비밀번호를 직접 입력하여 로그인할 수 있습니다 (초기 설정: 사용자명 `root`, 암호 없음).
 
 ### 5. 실시간 활동 및 로그 모니터링 (Live Activity & Error Logs)
 - 웹 대시보드와 데스크톱 제어 센터 창, CLI에서 실시간 로그를 즉시 확인할 수 있습니다.
